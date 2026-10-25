@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Truths and a Lie</title>
+
+    <style>
+        body {
+            background-color: bisque;
+            font-family: Arial, sans-serif;
+            max-width: 750px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            transition: background-color 0.5s ease;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: default;
+        }
+
+        .timer {
+            font-weight: bold;
+        }
+
+        .correct {
+            background-color: lightgreen;
+            animation: feedback 0.5s ease;
+        }
+
+        .incorrect {
+            background-color: lightcoral;
+            animation: feedback 0.5s ease;
+        }
+
+        @keyframes feedback {
+            from {
+                opacity: 0.4;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            form {
+                transition: none;
+            }
+
+            .correct,
+            .incorrect {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Lulu's Truth and Lie Game</h1>
+    <hr>
+
+    <h2>Introductions</h2>
+
+    <form id="name-form">
+        <label for="fname">First Name:</label><br>
+        <input type="text" name="fname" id="fname"><br><br>
+
+        <label for="lname">Last Name:</label><br>
+        <input type="text" name="lname" id="lname"><br><br>
+
+        <label for="age">Age:</label><br>
+        <input type="number" name="age" id="age" min="1"><br>
+
+        <button type="submit">SUBMIT</button>
+    </form>
+
+    <p id="greet" aria-live="polite">Welcome!</p>
+
+    <h2>Warm Up Trivia Question</h2>
+    <p>Which food is famous for lasting a very long time without spoiling?</p>
+
+    <form id="trivia-form">
+        <input type="radio" name="trivia1" id="chocolate">
+        <label for="chocolate">Dark Chocolate</label><br><br>
+
+        <input type="radio" name="trivia1" id="tuna">
+        <label for="tuna">Tuna</label><br><br>
+
+        <input type="radio" name="trivia1" id="honey">
+        <label for="honey">Honey</label><br>
+
+        <button type="submit">SUBMIT</button>
+    </form>
+
+    <p id="trivia1-answer" aria-live="polite"></p>
+
+    <hr>
+
+    <h2>Two Truths and a Lie</h2>
+    <p>Click START, then select the lie. You have 20 seconds!</p>
+
+    <form id="lie-form">
+        <input type="radio" name="lie" id="statement1" disabled>
+        <label for="statement1">A triangle has three sides.</label><br><br>
+
+        <input type="radio" name="lie" id="statement2" disabled>
+        <label for="statement2">A week has seven days.</label><br><br>
+
+        <input type="radio" name="lie" id="statement3" disabled>
+        <label for="statement3">An hour has one hundred minutes.</label>
+
+        <p id="lie-timer" class="timer">Time limit: 20 seconds</p>
+
+        <button type="button" id="lie-start" onclick="startGame('lie')">
+            START
+        </button>
+
+        <button type="submit" id="lie-submit" disabled>
+            SUBMIT
+        </button>
+    </form>
+
+    <p id="lie-answer" aria-live="polite"></p>
+
+    <hr>
+
+    <h2>Extra Challenge: Select Two Truths</h2>
+    <p>Click START, then select both truths. You have 20 seconds!</p>
+
+    <form id="truth-form">
+        <input type="checkbox" name="truth" id="truth1" disabled>
+        <label for="truth1">A square has four sides.</label><br><br>
+
+        <input type="checkbox" name="truth" id="truth2" disabled>
+        <label for="truth2">A minute has sixty seconds.</label><br><br>
+
+        <input type="checkbox" name="truth" id="truth3" disabled>
+        <label for="truth3">Five plus five equals twelve.</label>
+
+        <p id="truth-timer" class="timer">Time limit: 20 seconds</p>
+
+        <button type="button" id="truth-start" onclick="startGame('truth')">
+            START
+        </button>
+
+        <button type="submit" id="truth-submit" disabled>
+            SUBMIT
+        </button>
+    </form>
+
+    <p id="truth-answer" aria-live="polite"></p>
+
+    <script src="javascript/truth.js"></script>
+</body>
+</html>
