@@ -78,13 +78,13 @@
 
     <form id="name-form">
         <label for="fname">First Name:</label><br>
-        <input type="text" name="fname" id="fname"><br><br>
+        <input type="text" name="fname" id="fname" required><br><br>
 
         <label for="lname">Last Name:</label><br>
-        <input type="text" name="lname" id="lname"><br><br>
+        <input type="text" name="lname" id="lname" required><br><br>
 
         <label for="age">Age:</label><br>
-        <input type="number" name="age" id="age" min="1"><br>
+        <input type="number" name="age" id="age" min="1" required><br>
 
         <button type="submit">SUBMIT</button>
     </form>
@@ -116,23 +116,20 @@
 
     <form id="lie-form">
         <input type="radio" name="lie" id="statement1" disabled>
-        <label for="statement1">A triangle has three sides.</label><br><br>
+        <label for="statement1">
+            My great-great-grandpa wrote the Swedish national anthem.
+        </label><br><br>
 
         <input type="radio" name="lie" id="statement2" disabled>
-        <label for="statement2">A week has seven days.</label><br><br>
+        <label for="statement2">I am a quarter Polish.</label><br><br>
 
         <input type="radio" name="lie" id="statement3" disabled>
-        <label for="statement3">An hour has one hundred minutes.</label>
+        <label for="statement3">I can speak Japanese.</label>
 
         <p id="lie-timer" class="timer">Time limit: 20 seconds</p>
 
-        <button type="button" id="lie-start" onclick="startGame('lie')">
-            START
-        </button>
-
-        <button type="submit" id="lie-submit" disabled>
-            SUBMIT
-        </button>
+        <button type="button" id="lie-start">START</button>
+        <button type="submit" id="lie-submit" disabled>SUBMIT</button>
     </form>
 
     <p id="lie-answer" aria-live="polite"></p>
@@ -144,27 +141,255 @@
 
     <form id="truth-form">
         <input type="checkbox" name="truth" id="truth1" disabled>
-        <label for="truth1">A square has four sides.</label><br><br>
+        <label for="truth1">My favorite drink is slushies.</label><br><br>
 
         <input type="checkbox" name="truth" id="truth2" disabled>
-        <label for="truth2">A minute has sixty seconds.</label><br><br>
+        <label for="truth2">
+            I used to have a house in South Africa.
+        </label><br><br>
 
         <input type="checkbox" name="truth" id="truth3" disabled>
-        <label for="truth3">Five plus five equals twelve.</label>
+        <label for="truth3">I like peas.</label>
 
         <p id="truth-timer" class="timer">Time limit: 20 seconds</p>
 
-        <button type="button" id="truth-start" onclick="startGame('truth')">
-            START
-        </button>
-
-        <button type="submit" id="truth-submit" disabled>
-            SUBMIT
-        </button>
+        <button type="button" id="truth-start">START</button>
+        <button type="submit" id="truth-submit" disabled>SUBMIT</button>
     </form>
 
     <p id="truth-answer" aria-live="polite"></p>
 
-    <script src="javascript/truth.js"></script>
+    <script>
+        // Show the player's greeting without refreshing the page.
+        document.getElementById("name-form").addEventListener(
+            "submit",
+            function (event) {
+                event.preventDefault();
+
+                let fname = document.getElementById("fname").value.trim();
+                let lname = document.getElementById("lname").value.trim();
+                let age = document.getElementById("age").value;
+
+                document.getElementById("greet").textContent =
+                    "Greetings, " + age + "-year-old " +
+                    fname + " " + lname + "!";
+            }
+        );
+
+        // Change the form's color and replay the animation.
+        function showFeedback(formId, correct) {
+            let form = document.getElementById(formId);
+
+            form.classList.remove("correct", "incorrect");
+
+            // Restart the animation.
+            void form.offsetWidth;
+
+            if (correct) {
+                form.classList.add("correct");
+            }
+            else {
+                form.classList.add("incorrect");
+            }
+        }
+
+        // Check the warm-up trivia answer.
+        document.getElementById("trivia-form").addEventListener(
+            "submit",
+            function (event) {
+                event.preventDefault();
+
+                let answer = document.getElementById("trivia1-answer");
+                let chocolate = document.getElementById("chocolate").checked;
+                let tuna = document.getElementById("tuna").checked;
+                let honey = document.getElementById("honey").checked;
+
+                if (honey) {
+                    answer.textContent = "Correct! The answer is honey!";
+                    showFeedback("trivia-form", true);
+                }
+                else if (chocolate || tuna) {
+                    answer.textContent = "Incorrect! The answer is honey.";
+                    showFeedback("trivia-form", false);
+                }
+                else {
+                    answer.textContent = "Please select an answer!";
+                }
+            }
+        );
+
+        // Each game keeps track of its own timer.
+        let games = {
+            lie: {
+                timer: null,
+                deadline: 0,
+                running: false
+            },
+            truth: {
+                timer: null,
+                deadline: 0,
+                running: false
+            }
+        };
+
+        document.getElementById("lie-start").addEventListener(
+            "click",
+            function () {
+                startGame("lie");
+            }
+        );
+
+        document.getElementById("truth-start").addEventListener(
+            "click",
+            function () {
+                startGame("truth");
+            }
+        );
+
+        document.getElementById("lie-form").addEventListener(
+            "submit",
+            function (event) {
+                event.preventDefault();
+                submitGame("lie");
+            }
+        );
+
+        document.getElementById("truth-form").addEventListener(
+            "submit",
+            function (event) {
+                event.preventDefault();
+                submitGame("truth");
+            }
+        );
+
+        function startGame(game) {
+            let state = games[game];
+
+            if (state.running) {
+                return;
+            }
+
+            state.running = true;
+            state.deadline = Date.now() + 20000;
+
+            let form = document.getElementById(game + "-form");
+
+            form.querySelectorAll("input").forEach(function (input) {
+                input.disabled = false;
+            });
+
+            document.getElementById(game + "-start").disabled = true;
+            document.getElementById(game + "-submit").disabled = false;
+
+            updateTimer(game);
+
+            state.timer = setInterval(function () {
+                updateTimer(game);
+            }, 250);
+        }
+
+        function updateTimer(game) {
+            let secondsLeft = Math.max(
+                0,
+                Math.ceil((games[game].deadline - Date.now()) / 1000)
+            );
+
+            document.getElementById(game + "-timer").textContent =
+                "Time left: " + secondsLeft + " seconds";
+
+            if (secondsLeft === 0) {
+                submitGame(game);
+            }
+        }
+
+        function submitGame(game) {
+            let state = games[game];
+
+            if (!state.running) {
+                return;
+            }
+
+            let timeExpired = Date.now() >= state.deadline;
+
+            clearInterval(state.timer);
+            state.running = false;
+
+            if (game === "lie") {
+                checkLie();
+            }
+            else {
+                checkTruths();
+            }
+
+            // Lock the answers after submitting.
+            document.getElementById(game + "-form")
+                .querySelectorAll("input")
+                .forEach(function (input) {
+                    input.disabled = true;
+                });
+
+            document.getElementById(game + "-submit").disabled = true;
+
+            if (timeExpired) {
+                document.getElementById(game + "-timer").textContent =
+                    "Time's up! Your answer is locked.";
+            }
+            else {
+                document.getElementById(game + "-timer").textContent =
+                    "Answer submitted and locked!";
+            }
+        }
+
+        function checkLie() {
+            let answer = document.getElementById("lie-answer");
+
+            let first = document.getElementById("statement1").checked;
+            let second = document.getElementById("statement2").checked;
+            let third = document.getElementById("statement3").checked;
+
+            if (third) {
+                answer.textContent =
+                    "Correct! “I can speak Japanese” is the lie.";
+                showFeedback("lie-form", true);
+            }
+            else if (first || second) {
+                answer.textContent =
+                    "Incorrect! “I can speak Japanese” is the lie.";
+                showFeedback("lie-form", false);
+            }
+            else {
+                answer.textContent =
+                    "No answer selected! “I can speak Japanese” is the lie.";
+                showFeedback("lie-form", false);
+            }
+        }
+
+        function checkTruths() {
+            let answer = document.getElementById("truth-answer");
+
+            let first = document.getElementById("truth1").checked;
+            let second = document.getElementById("truth2").checked;
+            let third = document.getElementById("truth3").checked;
+
+            if (first && second && !third) {
+                answer.textContent =
+                    "Correct! Slushies and the house in South Africa " +
+                    "are the two truths!";
+                showFeedback("truth-form", true);
+            }
+            else if (first || second || third) {
+                answer.textContent =
+                    "Incorrect! Select only slushies and the house " +
+                    "in South Africa.";
+                showFeedback("truth-form", false);
+            }
+            else {
+                answer.textContent =
+                    "No answers selected! Slushies and the house " +
+                    "in South Africa are the two truths.";
+                showFeedback("truth-form", false);
+            }
+        }
+    </script>
 </body>
 </html>
